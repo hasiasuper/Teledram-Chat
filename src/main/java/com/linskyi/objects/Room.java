@@ -1,4 +1,4 @@
-package com.linskyi;
+package com.linskyi.objects;
 
 import lombok.Data;
 

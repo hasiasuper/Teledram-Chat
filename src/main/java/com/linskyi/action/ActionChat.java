@@ -1,16 +1,16 @@
-package com.linskyi.Action;
+package com.linskyi.action;
 
-import com.linskyi.ChatBot;
+import com.linskyi.ChatBotRun;
 import org.telegram.telegrambots.api.objects.Message;
 
 import java.util.Map;
 
-import static com.linskyi.ChatBot.listOnline;
-import static com.linskyi.ChatBot.listRooms;
-import static com.linskyi.ChatBot.listUsers;
+import static com.linskyi.ChatBotRun.listOnline;
+import static com.linskyi.ChatBotRun.listRooms;
+import static com.linskyi.ChatBotRun.listUsers;
 
 public class ActionChat {
-    private static ChatBot bot = new ChatBot();
+    private static ChatBotRun bot = new ChatBotRun();
 
     public static void run(Message m) {
         if (m.getText().equals("/exit")) {

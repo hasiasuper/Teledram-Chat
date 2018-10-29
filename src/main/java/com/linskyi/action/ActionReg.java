@@ -1,13 +1,13 @@
-package com.linskyi.Action;
+package com.linskyi.action;
 
-import com.linskyi.ChatBot;
+import com.linskyi.ChatBotRun;
 import com.linskyi.NewUser;
 import org.telegram.telegrambots.api.objects.Message;
 
-import static com.linskyi.ChatBot.*;
+import static com.linskyi.ChatBotRun.*;
 
 public class ActionReg {
-    private static ChatBot bot = new ChatBot();
+    private static ChatBotRun bot = new ChatBotRun();
 
     public static void run(Message m) {
         bot.sendMsg(m.getChatId(), NewUser.reg(m.getText(), m.getChatId(), userID, null));

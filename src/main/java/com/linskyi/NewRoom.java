@@ -1,9 +1,11 @@
 package com.linskyi;
 
+import com.linskyi.objects.Room;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.linskyi.ChatBot.roomID;
+import static com.linskyi.ChatBotRun.roomID;
 
 public class NewRoom {
 

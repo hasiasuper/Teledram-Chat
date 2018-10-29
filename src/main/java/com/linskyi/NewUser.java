@@ -1,6 +1,6 @@
 package com.linskyi;
 
-import static com.linskyi.ChatBot.listUsers;
+import static com.linskyi.ChatBotRun.listUsers;
 
 public class NewUser {
 
