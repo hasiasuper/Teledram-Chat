@@ -81,6 +81,6 @@ public class ChatBotRun extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        return myProperties.getBotUsername();
+        return myProperties.getBotToken();
     }
 }
