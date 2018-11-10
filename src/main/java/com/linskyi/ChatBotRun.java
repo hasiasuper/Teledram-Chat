@@ -1,12 +1,8 @@
 package com.linskyi;
 
-import com.linskyi.action.ActionChat;
-import com.linskyi.action.ActionNull;
-import com.linskyi.action.ActionNumberRoom;
-import com.linskyi.action.ActionReg;
-import com.linskyi.objects.MyProperties;
-import com.linskyi.objects.Room;
-import com.linskyi.objects.User;
+import com.linskyi.action.*;
+import com.linskyi.objects.*;
+import com.mongodb.*;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -14,26 +10,32 @@ import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
-import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.net.UnknownHostException;
 
 public class ChatBotRun extends TelegramLongPollingBot {
+    public static BotProperties botProperties = PropertyReader.read();
+    public static MongoClient mongoClient;
+    public DB db = mongoClient.getDB(botProperties.getBotDBName());
+    public DBCollection tableUsers = db.getCollection("users");
+    public DBCollection tableOnline = db.getCollection("online");
+    public DBCollection tableRooms = db.getCollection("rooms");
 
-    public static MyProperties myProperties = ReadProperties.read();
-    public static Map<Integer, Room> listRooms = NewRoom.createGeneralRoom();
-    public static Map<Long, User> listUsers = new HashMap<>();
-    public static Map<Long, Long> listOnline = new HashMap<>();
-    public static int userID = 1;
-    public static int roomID = 1;
+    {
+        try {
+            mongoClient = new MongoClient(botProperties.getBotHost(), botProperties.getBotPort());
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void main(String[] args) {
         ApiContextInitializer.init();
+        NewRoom.createGeneralRoom();
         TelegramBotsApi chatBot = new TelegramBotsApi();
         try {
             chatBot.registerBot(new ChatBotRun());
-        } catch (TelegramApiRequestException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -57,30 +59,34 @@ public class ChatBotRun extends TelegramLongPollingBot {
             sendMsg(m.getChatId(), "В данный момент чат распознает только текстовые сообщения!");
         } else {
 
-            if (listUsers.get(m.getChatId()) == null)
-                listUsers.put(m.getChatId(), new User(m.getChatId()));
+            if (tableUsers.find().count() == 0) {
+                BasicDBObject document = new BasicDBObject();
+                document.put("_id", m.getChatId());
+                tableUsers.insert(document);
+            }
 
-            if (listUsers.get(m.getChatId()).getAction() == null)
-                ActionNull.run(m);
-            else if (listUsers.get(m.getChatId()).getAction().equals("reg"))
+            DBObject query2 = new BasicDBObject();
+            query2.put("_id", m.getChatId());
+            DBObject user = tableUsers.findOne(query2);
+
+            if (user.get("action") == null)
+                ActionNull.run(m, user);
+            else if (user.get("action").equals("reg"))
                 ActionReg.run(m);
-            else if (listUsers.get(m.getChatId()).getAction().equals("chat"))
-                ActionChat.run(m);
+            else if (user.get("action").equals("chat"))
+                ActionChat.run(m, user);
             else
-                ActionNumberRoom.run(m);
-
+                ActionNumberRoom.run(m, user);
         }
-
-
     }
 
     @Override
     public String getBotUsername() {
-        return myProperties.getBotUsername();
+        return botProperties.getBotUsername();
     }
 
     @Override
     public String getBotToken() {
-        return myProperties.getBotToken();
+        return botProperties.getBotToken();
     }
 }

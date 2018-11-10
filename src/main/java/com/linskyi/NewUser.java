@@ -1,15 +1,26 @@
 package com.linskyi;
 
-import static com.linskyi.ChatBotRun.listUsers;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 
 public class NewUser {
+    private static ChatBotRun bot = new ChatBotRun();
 
-    public static String reg(String nickname, Long id, int chatID, String status) {
+    public static String reg(String nickname, Long id) {
+        BasicDBObject newDocument = new BasicDBObject();
+        newDocument.append("nickname", nickname);
+        BasicDBObject searchQuery = new BasicDBObject().append("_id", id);
+        bot.tableUsers.update(searchQuery, newDocument);
 
-        listUsers.get(id).setNickname(nickname);
-        listUsers.get(id).setChatID(chatID);
-        listUsers.get(id).setAction(status);
-        return "Поздравляем, " + nickname + ", вы успешно зарегистрированы! Ваш id в чате [" + chatID + "]. Теперь вы можете войти в чат - /chat";
+        DBObject query = new BasicDBObject("nickname", new BasicDBObject("$exists", 1));
+        int userID = bot.tableRooms.find(query).count() + 1;
+
+        BasicDBObject newDocument2 = new BasicDBObject();
+        newDocument2.append("$set", new BasicDBObject().append("id", userID));
+        BasicDBObject searchQuery2 = new BasicDBObject().append("_id", id);
+        bot.tableUsers.update(searchQuery2, newDocument2);
+
+        return "Поздравляем, " + nickname + ", вы успешно зарегистрированы! Ваш id в чате [" + userID + "]. Теперь вы можете войти в чат - /chat";
     }
 
 }

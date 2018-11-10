@@ -1,51 +1,64 @@
 package com.linskyi.action;
 
 import com.linskyi.ChatBotRun;
-import com.linskyi.objects.Room;
+import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import org.telegram.telegrambots.api.objects.Message;
 
-import java.util.Map;
-
-import static com.linskyi.ChatBotRun.listOnline;
-import static com.linskyi.ChatBotRun.listRooms;
-import static com.linskyi.ChatBotRun.listUsers;
+import java.util.ListIterator;
 
 public class ActionNumberRoom {
     private static ChatBotRun bot = new ChatBotRun();
 
-    public static void run(Message m) {
+    public static void run(Message m, DBObject user) {
         boolean remove = false;
-        int temp = 0;
+        int removeID = 0;
 
-        for (Map.Entry<Integer, Room> room : listRooms.entrySet())
-            try {
-                if (listUsers.get(m.getChatId()).getAction().equals(room.getKey().toString())) {
-                    Map<Long, Long> userRoom = room.getValue().getListOnline();
-
-                    if (m.getText().equals("/exit")) {
-                        for (Map.Entry<Long, Long> user : userRoom.entrySet()) {
-                            if (user.getValue().equals(m.getChatId())) {
-                                bot.sendMsg(user.getValue(), "Вы вышли, заходите к нам ещё!");
-                            } else
-                                bot.sendMsg(user.getValue(), "Нас покидает " + listUsers.get(m.getChatId()).getNickname() + "[" + listUsers.get(m.getChatId()).getChatID() + "], помашем ему(ей) ручкой!");
-                        }
-                        remove = true;
-                        temp = room.getKey();
-                        break;
-                    } else {
-                        for (Map.Entry<Long, Long> user : userRoom.entrySet())
-                            if (!user.getKey().equals(m.getChatId()))
-                                bot.sendMsg(user.getValue(), listUsers.get(m.getChatId()).getNickname() + "[" + listUsers.get(m.getChatId()).getChatID() + "]: " + m.getText());
+        DBCursor cur = bot.tableRooms.find();
+        DBObject room;
+        while (cur.hasNext()) {
+            room = cur.next();
+            if (user.get("action").equals(room.get("_id"))) {
+                if (m.getText().equals("/exit")) {
+                    DBObject doc = bot.tableRooms.findOne(new BasicDBObject("_id", user.get("action")));
+                    ListIterator<Object> trustedList = ((BasicDBList) doc.get("online")).listIterator();
+                    while (trustedList.hasNext()) {
+                        Object nextItem = trustedList.next();
+                        if (nextItem.equals(m.getChatId())) {
+                            bot.sendMsg((Long) user.get("_id"), "Вы вышли, заходите к нам ещё!");
+                        } else
+                            bot.sendMsg((Long) nextItem, "Нас покидает " + user.get("nickname") + "[" + user.get("id") + "], помашем ему(ей) ручкой!");
+                    }
+                    remove = true;
+                    removeID = (Integer) room.get("_id");
+                    break;
+                } else {
+                    DBObject doc = bot.tableRooms.findOne(new BasicDBObject("_id", user.get("action")));
+                    ListIterator<Object> trustedList = ((BasicDBList) doc.get("online")).listIterator();
+                    while (trustedList.hasNext()) {
+                        Object nextItem = trustedList.next();
+                        if (!nextItem.equals(m.getChatId()))
+                            bot.sendMsg((Long) nextItem, user.get("nickname") + "[" + user.get("id") + "]: " + m.getText());
                         break;
                     }
                 }
-            } catch (NullPointerException ignored) {
             }
+        }
 
         if (remove) {
-            listUsers.get(m.getChatId()).setAction(null);
-            listOnline.remove(m.getChatId());
-            listRooms.get(temp).getListOnline().remove(m.getChatId());
+            BasicDBObject newAction = new BasicDBObject();
+            newAction.append("$set", new BasicDBObject().append("action", null));
+            BasicDBObject searchQuery2 = new BasicDBObject().append("_id", m.getChatId());
+            bot.tableUsers.update(searchQuery2, newAction);
+
+            bot.tableOnline.remove(bot.tableOnline.findOne(m.getChatId()));
+
+            BasicDBObject removeDocument = new BasicDBObject();
+            removeDocument.append("$pull", new BasicDBObject().append("online", m.getChatId()));
+            BasicDBObject searchQuery = new BasicDBObject().append("_id", removeID);
+            bot.tableRooms.update(searchQuery, removeDocument);
         }
     }
 }
