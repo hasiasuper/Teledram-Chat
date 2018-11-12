@@ -16,6 +16,7 @@ import java.net.UnknownHostException;
 public class ChatBotRun extends TelegramLongPollingBot {
     public static BotProperties botProperties = PropertyReader.read();
     public static MongoClient mongoClient;
+    //todo: вилучити в окремий класс роботу з БД
     public DB db = mongoClient.getDB(botProperties.getBotDBName());
     public DBCollection tableUsers = db.getCollection("users");
     public DBCollection tableOnline = db.getCollection("online");
@@ -39,12 +40,13 @@ public class ChatBotRun extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-
+    //todo: вилучити в окремий класс роботу з апі телегама
     public void sendMsg(Long chatID, String text) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatID.toString());
         sendMessage.setText(text);
         try {
+            //todo: найти спосіб не використовувати дерпрекейтед метод
             sendMessage(sendMessage);
         } catch (TelegramApiException e) {
             e.printStackTrace();

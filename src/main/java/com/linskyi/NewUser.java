@@ -4,6 +4,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 public class NewUser {
+    //todo обэкт чат бота маэ бути один на всю апплікуху
     private static ChatBotRun bot = new ChatBotRun();
 
     public static String reg(String nickname, Long id) {

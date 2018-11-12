@@ -10,6 +10,7 @@ public class BotProperties {
     private int botPort;
     private String botDBName;
 
+    //todo можна замінити на AllArgsConstructor анотацію з ломбока
     public BotProperties(String botUsername, String botToken, String botHost, int botPort, String botDBName) {
         this.botUsername = botUsername;
         this.botToken = botToken;

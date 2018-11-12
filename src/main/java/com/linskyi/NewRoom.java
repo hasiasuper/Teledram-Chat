@@ -8,6 +8,7 @@ public class NewRoom {
     private static ChatBotRun bot = new ChatBotRun();
 
     public static void createGeneralRoom() {
+        //todo: розібратися з автоматичним мапінгом java обєктів в mongo
         DBObject query = new BasicDBObject("_id", 1);
         DBCursor check = bot.tableRooms.find(query);
         if (check.size() == 0) {
