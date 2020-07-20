@@ -1,13 +1,13 @@
 package com.linskyi.action;
 
-import com.linskyi.ChatBotRun;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import org.telegram.telegrambots.api.objects.Message;
 
+import static com.linskyi.CreateChatBotRun.bot;
+
 public class ActionNull {
-    private static ChatBotRun bot = new ChatBotRun();
 
     public static void run(Message m, DBObject user) {
         if (!("/chat".equals(m.getText()) || "/reg".equals(m.getText()) || "/exit".equals(m.getText())))

@@ -1,14 +1,13 @@
 package com.linskyi.action;
 
-import com.linskyi.ChatBotRun;
 import com.mongodb.*;
 import org.telegram.telegrambots.api.objects.Message;
 
 import java.util.ListIterator;
 
+import static com.linskyi.CreateChatBotRun.bot;
+
 public class ActionChat {
-    //todo сейм шіт як в NewUser і подібних місцях
-    private static ChatBotRun bot = new ChatBotRun();
 
     public static void run(Message m, DBObject user) {
         if (m.getText().equals("/exit")) {

@@ -1,6 +1,5 @@
 package com.linskyi.action;
 
-import com.linskyi.ChatBotRun;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
@@ -9,8 +8,9 @@ import org.telegram.telegrambots.api.objects.Message;
 
 import java.util.ListIterator;
 
+import static com.linskyi.CreateChatBotRun.bot;
+
 public class ActionNumberRoom {
-    private static ChatBotRun bot = new ChatBotRun();
 
     public static void run(Message m, DBObject user) {
         boolean remove = false;

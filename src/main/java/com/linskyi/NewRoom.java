@@ -4,8 +4,9 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
+import static com.linskyi.CreateChatBotRun.bot;
+
 public class NewRoom {
-    private static ChatBotRun bot = new ChatBotRun();
 
     public static void createGeneralRoom() {
         //todo: розібратися з автоматичним мапінгом java обєктів в mongo
